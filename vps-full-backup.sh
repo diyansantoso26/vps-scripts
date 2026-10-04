@@ -60,8 +60,11 @@ cp -a /www/server/panel/vhost/nginx/*.conf "$STAGE/system/nginx-vhosts/" 2>/dev/
 [ -d /home/gtg/svcpanel ] && cp -a /home/gtg/svcpanel "$STAGE/system/svcpanel-app"
 [ -f /home/gtg/.panel_pass ] && cp -a /home/gtg/.panel_pass "$STAGE/system/"
 # cloudflared tunnel (config + kredensial tunnel + cert)
-mkdir -p "$STAGE/system/cloudflared"
-cp -a /etc/cloudflared/. "$STAGE/system/cloudflared/" 2>/dev/null || true
+# CATATAN: kredensial tunnel (JSON) ada di /root/.cloudflared, BUKAN /etc/cloudflared!
+mkdir -p "$STAGE/system/cloudflared-etc" "$STAGE/system/cloudflared-root"
+cp -a /etc/cloudflared/. "$STAGE/system/cloudflared-etc/" 2>/dev/null || true
+cp -a /root/.cloudflared/. "$STAGE/system/cloudflared-root/" 2>/dev/null || true
+[ -d /home/gtg/.cloudflared ] && cp -a /home/gtg/.cloudflared/. "$STAGE/system/cloudflared-gtg/" 2>/dev/null || true
 # sertifikat SSL
 mkdir -p "$STAGE/system/letsencrypt"
 cp -a /etc/letsencrypt/. "$STAGE/system/letsencrypt/" 2>/dev/null || true
