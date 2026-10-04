@@ -70,13 +70,15 @@ API keys ikut dalam database 9router — klien lama langsung bisa pakai lagi.
 ## 5. Cloudflare Tunnel
 
 ```bash
-mkdir -p /etc/cloudflared
-cp -a /root/restore/system/cloudflared/. /etc/cloudflared/
+mkdir -p /etc/cloudflared /root/.cloudflared
+cp -a /root/restore/system/cloudflared-etc/. /etc/cloudflared/
+cp -a /root/restore/system/cloudflared-root/. /root/.cloudflared/
+chmod 600 /root/.cloudflared/*.json /root/.cloudflared/cert.pem
 cp /root/restore/system/cloudflared.service /etc/systemd/system/
 systemctl daemon-reload && systemctl enable --now cloudflared
 ```
 Kredensial tunnel (JSON + cert) ikut ter-backup — **tidak perlu buat tunnel
-baru**, ID tunnel tetap sama.
+baru**, ID tunnel tetap sama. Jangan sampai file JSON ini hilang.
 
 ## 6. Docker (WAHA, n8n, Uptime Kuma, dsb.)
 
