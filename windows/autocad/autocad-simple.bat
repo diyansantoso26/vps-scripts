@@ -5,6 +5,7 @@ rem  Blokir internet AutoCAD 2018 + verifikasi cepat.
 rem  Sekali jalan, tanpa menu. Untuk fitur lengkap:
 rem  autocad-toolkit.bat
 rem ============================================================
+rem  Dibuat oleh GTG COMPUTER
 
 net session >nul 2>&1
 if %errorLevel% neq 0 (
@@ -13,6 +14,8 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
+echo.
+echo  AUTOCAD SIMPLE - oleh GTG COMPUTER
 echo.
 echo  [1/3] Firewall: blokir outbound...
 call :B "C:\Program Files\Autodesk\AutoCAD 2018\acad.exe" "Blokir AutoCAD2018 - acad.exe"
