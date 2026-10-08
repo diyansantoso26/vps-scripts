@@ -6,8 +6,9 @@ rem  - Tampilkan status: TERBLOKIR atau AKTIF
 rem  - Toggle per komponen: blokir lagi / aktifkan lagi
 rem  - Backup memakai format yang sama dengan blokir-update.bat
 rem    (folder %SystemDrive%\Backup-Blokir-Update\<timestamp>\)
+rem  Dibuat oleh GTG COMPUTER
 rem ============================================================
-set "VER=1"
+set "VER=2"
 set "REPO=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/cek-update"
 
 :: ---------- cek update otomatis ----------
@@ -48,6 +49,7 @@ call :DetectState
 cls
 echo  ===============================================
 echo   CEK UPDATE v%VER% - Status ^& Toggle
+echo   oleh GTG COMPUTER
 echo  ===============================================
 echo.
 echo   Windows Update : %WSTATE%
