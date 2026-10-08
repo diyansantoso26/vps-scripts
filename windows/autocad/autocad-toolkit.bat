@@ -357,16 +357,14 @@ if not exist "%SCANDIR%\acad.exe" (
     exit /b 1
 )
 echo  Memindai: %SCANDIR%
-echo  (mohon tunggu, membaca daftar firewall dulu...)
-netsh advfirewall firewall show rule name=all 2>nul | findstr /i "Rule Name:  Blokir AutoCAD2018" > "%TEMP%\acadrules.txt"
+echo  (mengecek satu-satu langsung ke Windows Firewall, mohon tunggu...)
+echo.
 set "SCANFILE=%TEMP%\scanbelum.txt"
 if exist "%SCANFILE%" del "%SCANFILE%"
-echo.
 for /r "%SCANDIR%" %%F in (*.exe) do call :ScanExe "%%F"
 echo.
 if not exist "%SCANFILE%" (
     echo  Semua EXE bawaan paket sudah terblokir. Mantap.
-    del "%TEMP%\acadrules.txt" 2>nul
     pause
     exit /b 0
 )
@@ -379,14 +377,18 @@ if /i "%BLOKSEMUA%"=="Y" (
     echo  Selesai diblokir.
 )
 del "%SCANFILE%" 2>nul
-del "%TEMP%\acadrules.txt" 2>nul
 pause
 exit /b 0
 
 :ScanExe
-findstr /i /c:"Blokir AutoCAD2018 - %~nx1" "%TEMP%\acadrules.txt" >nul 2>&1
+netsh advfirewall firewall show rule name="Blokir AutoCAD2018 - %~nx1" 2>nul | findstr /i /c:"Enabled:" | findstr /i "Yes" >nul
 if not errorlevel 1 (
     echo      [TERBLOKIR] %~nx1
+    exit /b 0
+)
+netsh advfirewall firewall show rule name="Blokir AutoCAD2018 - %~n1" 2>nul | findstr /i /c:"Enabled:" | findstr /i "Yes" >nul
+if not errorlevel 1 (
+    echo      [TERBLOKIR] %~nx1 (rule nama lama)
     exit /b 0
 )
 echo      [BELUM]     %~nx1
