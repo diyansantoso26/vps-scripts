@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=16"
+set "VER=17"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -30,7 +30,7 @@ cls
 echo.
 echo  ===============================================
 echo   AUTOCAD 2018 TOOLKIT v%VER%
-echo   oleh GTG COMPUTER
+echo   oleh GTG COMPUTER - WA 085738127969
 echo  ===============================================
 echo.
 echo   [1] Blokir internet total
