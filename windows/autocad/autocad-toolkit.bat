@@ -19,11 +19,16 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
+set "VER=12"
+set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
+set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
+call :CheckUpdate
+
 :MENU
 cls
 echo.
 echo  ===============================================
-echo   AUTOCAD 2018 TOOLKIT
+echo   AUTOCAD 2018 TOOLKIT v%VER%
 echo  ===============================================
 echo.
 echo   [1] Blokir internet total (firewall+service+hosts)
@@ -49,6 +54,25 @@ if "%PILIH%"=="0" exit /b 0
 echo  Pilihan tidak valid.
 pause
 goto MENU
+
+:: ================== UPDATE OTOMATIS ==================
+:CheckUpdate
+set "NEWVER="
+for /f %%V in ('powershell -NoProfile -Command "try { (Invoke-WebRequest -Uri '%VERURL%' -UseBasicParsing -TimeoutSec 8).Content.Trim() } catch { }" 2^>nul') do set "NEWVER=%%V"
+if not defined NEWVER exit /b 0
+if "%NEWVER%"=="%VER%" exit /b 0
+echo.
+echo  Update tersedia: v%VER% -^> v%NEWVER%. Mengunduh...
+powershell -NoProfile -Command "try { Invoke-WebRequest -Uri '%BATURL%' -OutFile '%TEMP%\actkit-new.bat' -UseBasicParsing -TimeoutSec 60; 'UPDOK' } catch { 'UPDFAIL' }" > "%TEMP%\upd.txt" 2>nul
+findstr /i "UPDOK" "%TEMP%\upd.txt" >nul 2>&1
+del "%TEMP%\upd.txt" 2>nul
+if errorlevel 1 (
+    echo  Gagal mengunduh update. Lanjut dengan v%VER%.
+    exit /b 0
+)
+echo  Menjalankan v%NEWVER%...
+start "" "%TEMP%\actkit-new.bat"
+exit
 
 :: ================== [1] BLOKIR ==================
 :DoBlock
@@ -216,6 +240,8 @@ exit /b 0
 :: ================== [6] MONITOR ==================
 :DOMONITOR
 cls
+set "MONLOG=%TEMP%\actkit-monitor.log"
+echo [%date% %time%] Monitor v%VER% dimulai > "%MONLOG%"
 echo.
 echo  ===============================================
 echo   MONITOR KONEKSI LIVE - acad.exe
@@ -226,8 +252,10 @@ echo    MENUNGGU   = acad.exe belum dibuka
 echo    AMAN       = 0 koneksi keluar (terblokir total)
 echo    ADA KONEKSI= ada yang lolos! catat detailnya
 echo  Tutup window ini untuk berhenti.
+echo  (log diagnosis: %MONLOG%)
 echo.
 :MONLOOP
+echo %time% loop >> "%MONLOG%"
 set "ACADPID="
 for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul ^| findstr /v /i "INFO:"') do set "ACADPID=%%P"
 if not defined ACADPID (
