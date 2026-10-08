@@ -35,3 +35,17 @@ Dokumentasi lengkap: [windows/blokir-update/](windows/blokir-update/)
 ```powershell
 irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/blokir-update/blokir-update.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
+
+## Script Windows — Cek Update (Status & Toggle)
+
+Pasangan `blokir-update`: dibuka langsung tampil status Windows Update dan
+Office Update (TERBLOKIR/AKTIF), dengan opsi toggle per komponen —
+blokir lagi atau aktifkan lagi. Satu atap, gampang.
+
+Dokumentasi lengkap: [windows/cek-update/](windows/cek-update/)
+
+### Pakai cepat (copy-paste di PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/cek-update/cek-update.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
+```
