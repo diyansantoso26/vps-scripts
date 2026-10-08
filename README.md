@@ -49,3 +49,17 @@ Dokumentasi lengkap: [windows/cek-update/](windows/cek-update/)
 ```powershell
 irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/cek-update/cek-update.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
+
+## Script Windows — AutoCAD 2025 Toolkit
+
+Varian AutoCAD 2025 dari toolkit di atas: fungsi sama persis (blokir total,
+verifikasi, bersih lisensi, monitor live, dll), disesuaikan untuk
+`C:\Program Files\Autodesk\AutoCAD 2025`.
+
+Dokumentasi lengkap: [windows/autocad-2025/](windows/autocad-2025/)
+
+### Pakai cepat (copy-paste di PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
+```
