@@ -212,23 +212,36 @@ exit /b 0
 
 :: ================== [6] MONITOR ==================
 :DoMonitor
+set "MONSTATE="
 echo.
 echo  --- [6] MONITOR KONEKSI LIVE ---
-echo  Refresh tiap 5 detik. Tutup window / Ctrl+C lalu Y untuk keluar.
+echo  Cara pakai: biarkan window ini terbuka, LALU buka AutoCAD.
+echo  Koneksi acad.exe akan muncul di bawah otomatis.
+echo  Refresh tiap 5 detik. Tutup window ini untuk berhenti.
 echo.
-:MonLoop
+for /l %%i in (1,0,2) do call :MonIter
+exit /b 0
+
+:MonIter
 set "ACADPID="
 for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul') do set "ACADPID=%%P"
 if not defined ACADPID (
-    echo [%time%] acad.exe TIDAK berjalan. Menunggu...
+    if not "%MONSTATE%"=="down" (
+        echo [%time%] acad.exe belum berjalan. Buka AutoCAD dulu...
+    )
+    set "MONSTATE=down"
 ) else (
-    echo.
-    echo [%time%] acad.exe (PID %ACADPID%) koneksi aktif:
+    if not "%MONSTATE%"=="up" (
+        echo.
+        echo [%time%] acad.exe TERDETEKSI (PID %ACADPID%). Memantau koneksi...
+    )
+    set "MONSTATE=up"
+    echo --- %time% ---
     netstat -ano | findstr " %ACADPID% " | findstr /v /i "LISTENING"
-    echo   ---(tidak ada baris = tidak ada koneksi keluar)---
+    echo   (tidak ada baris di atas = tidak ada koneksi keluar)
 )
 timeout /t 5 /nobreak >nul
-goto MonLoop
+exit /b 0
 
 :: ================== [7] HOSTS SAJA ==================
 :DoHostsOnly
