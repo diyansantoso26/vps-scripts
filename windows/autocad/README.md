@@ -7,17 +7,16 @@ Kumpulan script sekali-jalan untuk memutus total akses internet AutoCAD 2018
 
 **Versi SIMPLE** — blokir + verifikasi dasar, sekali jalan tanpa menu:
 ```powershell
-irm tinyurl.com/2dyq8f66 -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
+irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-simple.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
 
 **Versi TOOLKIT LENGKAP** — menu 8 opsi (v12+, self-update otomatis):
 ```powershell
-irm tinyurl.com/29xydxmu -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
+irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
 
-> Kedua short-link di atas menembak ke file `.bat` di folder ini
-> (repo sendiri, transparan — bisa dicek isinya kapan saja).
-> Versi panjang (URL penuh) ada di bawah untuk arsip.
+> `irm` = download, `saps` = jalankan sebagai Administrator.
+> Kompatibel PowerShell 5.1 dan 7.x.
 
 ## Daftar file
 
@@ -32,7 +31,10 @@ irm tinyurl.com/29xydxmu -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb Ru
 | `whitelist-defender-autocad.bat` | Masukkan folder + proses AutoCAD ke exclusion Windows Defender |
 | `perbaiki-hosts-autocad.bat` | Tulis ulang 9 domain Autodesk ke hosts (verbose) |
 
-## One-liner versi PANJANG (URL penuh, arsip)
+## One-liner versi LENGKAP (dengan proteksi download)
+
+Versi di atas sudah cukup untuk pemakaian normal. Kalau mau yang ada
+proteksi (hapus file lama dulu + pesan jelas kalau download gagal):
 
 ```powershell
 # SIMPLE
