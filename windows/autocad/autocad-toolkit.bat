@@ -9,6 +9,7 @@ rem   [4] Bersih TOTAL ala Autodesk (lanjut install ulang CAD)
 rem   [5] Whitelist Windows Defender
 rem   [6] Monitor koneksi live acad.exe
 rem   [7] Perbaiki hosts file saja
+rem   [8] Scan semua EXE bawaan paket (cek yg perlu diblokir)
 rem ============================================================
 
 net session >nul 2>&1
@@ -32,9 +33,10 @@ echo   [4] Bersih TOTAL ala Autodesk (lanjut install ulang CAD)
 echo   [5] Whitelist Windows Defender
 echo   [6] Monitor koneksi live acad.exe
 echo   [7] Perbaiki hosts file saja
+echo   [8] Scan semua EXE bawaan paket (cek yg perlu diblokir)
 echo   [0] Keluar
 echo.
-set /p PILIH="  Pilih [0-7]: "
+set /p PILIH="  Pilih [0-8]: "
 if "%PILIH%"=="1" ( call :DoBlock & goto MENU )
 if "%PILIH%"=="2" ( call :DoVerify & goto MENU )
 if "%PILIH%"=="3" ( call :DoCleanLicense & goto MENU )
@@ -42,6 +44,7 @@ if "%PILIH%"=="4" ( call :DoFullWipe & goto MENU )
 if "%PILIH%"=="5" ( call :DoWhitelist & goto MENU )
 if "%PILIH%"=="6" ( call :DoMonitor & goto MENU )
 if "%PILIH%"=="7" ( call :DoHostsOnly & goto MENU )
+if "%PILIH%"=="8" ( call :DoScan & goto MENU )
 if "%PILIH%"=="0" exit /b 0
 echo  Pilihan tidak valid.
 pause
@@ -338,6 +341,56 @@ echo.
 echo  --- isi hosts SESUDAH (15 baris terakhir) ---
 powershell -NoProfile -Command "Get-Content '%HOSTSFILE%' | Select-Object -Last 15"
 echo  SELESAI.
+exit /b 0
+
+:: ================== [8] SCAN EXE ==================
+:DoScan
+echo.
+echo  --- [8] SCAN SEMUA EXE BAWAAN PAKET ---
+set "SCANDIR=C:\Program Files\Autodesk\AutoCAD 2018"
+if not exist "%SCANDIR%\acad.exe" (
+    set /p SCANDIR="  Masukkan path folder AutoCAD 2018: "
+)
+if not exist "%SCANDIR%\acad.exe" (
+    echo  acad.exe tidak ditemukan. Batal.
+    pause
+    exit /b 1
+)
+echo  Memindai: %SCANDIR%
+echo  (mohon tunggu, membaca daftar firewall dulu...)
+netsh advfirewall firewall show rule name=all 2>nul | findstr /i "Rule Name:  Blokir AutoCAD2018" > "%TEMP%\acadrules.txt"
+set "SCANFILE=%TEMP%\scanbelum.txt"
+if exist "%SCANFILE%" del "%SCANFILE%"
+echo.
+for /r "%SCANDIR%" %%F in (*.exe) do call :ScanExe "%%F"
+echo.
+if not exist "%SCANFILE%" (
+    echo  Semua EXE bawaan paket sudah terblokir. Mantap.
+    del "%TEMP%\acadrules.txt" 2>nul
+    pause
+    exit /b 0
+)
+echo  --- EXE yang BELUM diblokir: ---
+type "%SCANFILE%"
+echo.
+set /p BLOKSEMUA="  Blokir SEMUA yang di atas? (Y/N): "
+if /i "%BLOKSEMUA%"=="Y" (
+    for /f "delims=" %%L in (%SCANFILE%) do call :BlockProg "%%L" "Blokir AutoCAD2018 - %%~nxL"
+    echo  Selesai diblokir.
+)
+del "%SCANFILE%" 2>nul
+del "%TEMP%\acadrules.txt" 2>nul
+pause
+exit /b 0
+
+:ScanExe
+findstr /i /c:"Blokir AutoCAD2018 - %~nx1" "%TEMP%\acadrules.txt" >nul 2>&1
+if not errorlevel 1 (
+    echo      [TERBLOKIR] %~nx1
+    exit /b 0
+)
+echo      [BELUM]     %~nx1
+(echo %~1)>>"%SCANFILE%"
 exit /b 0
 
 :KillAuto
