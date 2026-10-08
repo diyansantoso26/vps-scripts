@@ -15,7 +15,7 @@ if %errorLevel% neq 0 (
 )
 
 echo.
-echo  AUTOCAD SIMPLE - oleh GTG COMPUTER
+echo  AUTOCAD SIMPLE - oleh GTG COMPUTER - WA 085738127969
 echo.
 echo  [1/3] Firewall: blokir outbound...
 call :B "C:\Program Files\Autodesk\AutoCAD 2018\acad.exe" "Blokir AutoCAD2018 - acad.exe"
