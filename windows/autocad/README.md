@@ -7,12 +7,12 @@ Kumpulan script sekali-jalan untuk memutus total akses internet AutoCAD 2018
 
 **Versi SIMPLE** — blokir + verifikasi dasar, sekali jalan tanpa menu:
 ```powershell
-irm tinyurl.com/2dyq8f66 -o $env:TEMP\s.bat; sa $env:TEMP\s.bat -v RunAs
+irm tinyurl.com/2dyq8f66 -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
 
 **Versi TOOLKIT LENGKAP** — menu 8 opsi (v12+, self-update otomatis):
 ```powershell
-irm tinyurl.com/29xydxmu -o $env:TEMP\s.bat; sa $env:TEMP\s.bat -v RunAs
+irm tinyurl.com/29xydxmu -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
 
 > Kedua short-link di atas menembak ke file `.bat` di folder ini
