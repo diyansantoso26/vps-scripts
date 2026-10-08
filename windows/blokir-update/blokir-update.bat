@@ -7,8 +7,9 @@ rem  CARA KERJA: setiap aksi blokir SELALU backup registry dulu
 rem  ke %SystemDrive%\Backup-Blokir-Update\<timestamp>\  berupa
 rem  file .reg + manifest. Opsi [4] Restore mengembalikan semua
 rem  seperti semula dari backup terakhir.
+rem  Dibuat oleh GTG COMPUTER
 rem ============================================================
-set "VER=1"
+set "VER=2"
 set "REPO=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/blokir-update"
 
 :: ---------- cek update otomatis ----------
@@ -48,6 +49,7 @@ if %errorLevel% neq 0 (
 cls
 echo  ===============================================
 echo   BLOKIR UPDATE v%VER% - Windows ^& Office
+echo   oleh GTG COMPUTER
 echo  ===============================================
 echo.
 echo   [1] Blokir Windows Update saja
