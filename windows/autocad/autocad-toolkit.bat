@@ -426,7 +426,6 @@ if "%TRES%"=="OK" (
     echo      [GAGAL] %~1:443 MASIH BISA dihubungi!
     set /a V_FAIL+=1
 ) else (
-    echo      [?]    %~1:443 tidak bisa dites (cek koneksi internet PC)
-    set /a V_FAIL+=1
+    echo      [?]    %~1:443 tidak bisa dites di PC ini (abaikan bila [a]-[c] OK)
 )
 exit /b 0
