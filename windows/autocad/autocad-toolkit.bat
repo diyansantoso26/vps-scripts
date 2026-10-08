@@ -19,7 +19,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=14"
+set "VER=15"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -157,6 +157,11 @@ exit /b 0
 echo.
 echo  --- [3] BERSIHKAN DATA LISENSI ---
 echo  Program AutoCAD TETAP terinstall, tinggal aktivasi ulang.
+call :Confirm "Menghapus SEMUA data lisensi/aktivasi AutoCAD." "Setelah ini AutoCAD WAJIB aktivasi ulang dari awal."
+if errorlevel 1 (
+    pause
+    exit /b 0
+)
 call :KillAuto
 call :WipeLicense
 echo.
@@ -169,11 +174,8 @@ exit /b 0
 :DoFullWipe
 echo.
 echo  --- [4] BERSIH TOTAL ---
-echo  SEMUA folder + registry Autodesk akan dihapus!
-echo  Setelah ini install ulang AutoCAD dari installer.
-set /p YAKIN="  Ketik YA untuk lanjut: "
-if /i not "%YAKIN%"=="YA" (
-    echo  Dibatalkan.
+call :Confirm "SEMUA folder + registry Autodesk akan dihapus!" "Lakukan HANYA bila mau install ulang AutoCAD dari installer."
+if errorlevel 1 (
     pause
     exit /b 0
 )
@@ -520,4 +522,17 @@ if errorlevel 1 (
     set /a V_FAIL+=1
 )
 exit /b 0
-
+:: Konfirmasi ganda untuk tindakan destruktif.
+:: %1 = apa yang akan dilakukan, %2 = dampaknya.
+:: return 0 = lanjut, 1 = batal.
+:Confirm
+echo.
+echo  +++++ PERINGATAN +++++
+echo  %~1
+echo  %~2
+echo.
+set "CF="
+set /p "CF=Ketik YA (huruf besar) untuk lanjut, Enter untuk batal: "
+if /i "%CF%"=="YA" exit /b 0
+echo  Dibatalkan - tidak ada yang diubah.
+exit /b 1
