@@ -175,3 +175,42 @@ Pilih mode 1 (restore otomatis), siapkan password decrypt backup.
 4. Setelah itu `https://gtg.my.id` akan tampil (bukan 502 lagi).
 5. (Opsional) Kalau mau website lama dikembalikan, file + database-nya ada
    di backup — tinggal bilang, nanti direstore sekalian.
+
+---
+
+## 6. Catatan tambahan (ditemukan saat instalasi 2026-10-08)
+
+**panel.gtg.my.id redirect loop** — kalau panel tidak bisa dibuka lewat
+tunnel (redirect berulang):
+- Penyebab: nginx panel aaPanel hanya listen HTTPS (port panel, mis. 16260)
+  dan me-redirect semua HTTP ke HTTPS (`error_page 497`).
+  Tunnel yang forward sebagai `http://127.0.0.1:PORT` akan kena loop.
+- Solusi: di `config.yml` pakai origin HTTPS + `noTLSVerify: true`
+  (cert panel self-signed):
+  ```yaml
+  - hostname: panel.gtg.my.id
+    service: https://127.0.0.1:16260
+    originRequest:
+      noTLSVerify: true
+  ```
+- Catatan debug: jangan tes dengan `curl` biasa — panel aaPanel memblokir
+  user-agent non-browser (404 via `public.is_spider`). Tes dengan
+  `-A 'Mozilla/5.0 ...'` atau langsung dari browser HP.
+- URL yang benar: `https://panel.gtg.my.id/<admin-path>` (TANPA port!).
+  Port hanya untuk akses langsung `http(s)://IP-VPS:PORT/<admin-path>`.
+- Cek admin path: `cat /www/server/panel/data/admin_path.pl`
+- Cek port: `cat /www/server/panel/data/port.pl`
+
+**Restore TG Drive** (ikut `panduan-restore-vps.md` bagian 2):
+- Tambahan: di Ubuntu 24.04 perlu `apt install python3.12-venv`
+  (`python3-venv` saja tidak cukup untuk `python3 -m venv`).
+- Setelah app jalan di 127.0.0.1:8502, tambahkan ke ingress tunnel:
+  ```yaml
+  - hostname: drive.gtg.my.id
+    service: http://127.0.0.1:8502
+  ```
+  lalu `cloudflared tunnel route dns <TID> drive.gtg.my.id` + restart.
+- `telegram-bot-api` (127.0.0.1:8081/8082) tidak ikut di backup — harus
+  build from source (tdlib/telegram-bot-api, `nice -n 19 cmake --build . -j2`,
+  binary ke `/usr/local/bin`) + service systemd sebagai user `tgdrive`.
+  Butuh `api_id` + `api_hash` dari my.telegram.org (tidak ada di backup).
