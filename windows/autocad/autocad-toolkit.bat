@@ -11,6 +11,7 @@ rem   [6] Monitor koneksi live acad.exe
 rem   [7] Perbaiki hosts file saja
 rem   [8] Scan semua EXE bawaan paket (cek yg perlu diblokir)
 rem ============================================================
+rem  Dibuat oleh GTG COMPUTER
 
 net session >nul 2>&1
 if %errorLevel% neq 0 (
@@ -19,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=15"
+set "VER=16"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -29,6 +30,7 @@ cls
 echo.
 echo  ===============================================
 echo   AUTOCAD 2018 TOOLKIT v%VER%
+echo   oleh GTG COMPUTER
 echo  ===============================================
 echo.
 echo   [1] Blokir internet total
