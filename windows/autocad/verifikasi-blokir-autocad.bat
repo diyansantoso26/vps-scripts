@@ -92,13 +92,17 @@ if not errorlevel 1 (
 exit /b 0
 
 :ChkHost
-findstr /i /c:"%~1" "%SystemRoot%\System32\drivers\etc\hosts" >nul 2>&1
-if not errorlevel 1 (
-    echo      [OK]   %~1 ada di hosts file
-    set /a PASS+=1
-) else (
+set "HC=?"
+for /f %%L in ('powershell -NoProfile -Command "((Get-Content \"%SystemRoot%\System32\drivers\etc\hosts\" -ErrorAction SilentlyContinue | Select-String -SimpleMatch '%~1' | Measure-Object).Count)" 2^>nul') do set "HC=%%L"
+if "%HC%"=="0" (
     echo      [GAGAL] %~1 tidak ada di hosts file
     set /a FAIL+=1
+) else if "%HC%"=="?" (
+    echo      [?]    %~1 tidak bisa dicek di PC ini
+    set /a FAIL+=1
+) else (
+    echo      [OK]   %~1 ada di hosts file
+    set /a PASS+=1
 )
 exit /b 0
 
