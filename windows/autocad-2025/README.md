@@ -29,7 +29,7 @@ irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/au
 | **[6]** | Monitor live — dashboard statis semua proses Autodesk, 0 koneksi = terblokir total |
 | **[7]** | Perbaiki hosts — tulis ulang 9 domain Autodesk |
 | **[8]** | Scan semua EXE bawaan paket + status blokirnya |
-| **[9]** | Nonaktifkan blokir (unblock 2018+2025) — hapus rule firewall + hosts (konfirmasi YA) |
+| **[9]** | Nonaktifkan blokir AutoCAD 2025 — hapus rule firewall + hosts (konfirmasi YA) |
 
 ## Catatan
 
