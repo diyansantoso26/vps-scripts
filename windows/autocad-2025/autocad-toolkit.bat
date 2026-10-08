@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=3"
+set "VER=4"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -50,7 +50,7 @@ echo   [7] Perbaiki hosts file saja
 echo       - tulis ulang 9 domain Autodesk (tanpa ubah firewall).
 echo   [8] Scan semua EXE bawaan paket
 echo       - daftar semua .exe + status blokir firewall-nya.
-echo   [9] Nonaktifkan blokir (unblock 2018+2025)
+echo   [9] Nonaktifkan blokir AutoCAD 2025
 echo       - hapus rule firewall + hosts. Konfirmasi YA.
 echo   [0] Keluar
 echo.
@@ -353,16 +353,16 @@ exit /b 0
 
 :DoUnblock
 echo.
-echo  --- [9] NONAKTIFKAN BLOKIR (2018 + 2025) ---
-call :Confirm "Menghapus SEMUA rule firewall Blokir AutoCAD2018/2025 + entri hosts Autodesk." "AutoCAD bisa akses internet lagi setelah ini."
+echo  --- [9] NONAKTIFKAN BLOKIR AUTOCAD 2025 ---
+call :Confirm "Menghapus rule firewall Blokir AutoCAD2025 + entri hosts Autodesk." "AutoCAD 2025 bisa akses internet lagi setelah ini."
 if errorlevel 1 (
     pause
     exit /b 0
 )
 echo  [a] Hapus rule firewall...
-powershell -NoProfile -Command "Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2018*','Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule" >nul 2>&1
+powershell -NoProfile -Command "Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule" >nul 2>&1
 set "RN=?"
-for /f %%N in ('powershell -NoProfile -Command "(Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2018*','Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Measure-Object).Count" 2^>nul') do set "RN=%%N"
+for /f %%N in ('powershell -NoProfile -Command "(Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Measure-Object).Count" 2^>nul') do set "RN=%%N"
 echo      + sisa rule blokir: %RN%
 echo  [b] Bersihkan entri Autodesk dari hosts...
 set "HF=%SystemRoot%\System32\drivers\etc\hosts"
@@ -383,7 +383,7 @@ for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licen
     if not errorlevel 1 sc config %%~S start= demand >nul 2>&1
 )
 echo.
-echo  SELESAI. Blokir dinonaktifkan (2018 + 2025).
+echo  SELESAI. Blokir AutoCAD 2025 dinonaktifkan.
 pause
 exit /b 0
 
