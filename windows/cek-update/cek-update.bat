@@ -8,7 +8,7 @@ rem  - Backup memakai format yang sama dengan blokir-update.bat
 rem    (folder %SystemDrive%\Backup-Blokir-Update\<timestamp>\)
 rem  Dibuat oleh GTG COMPUTER
 rem ============================================================
-set "VER=2"
+set "VER=3"
 set "REPO=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/cek-update"
 
 :: ---------- cek update otomatis ----------
@@ -49,7 +49,7 @@ call :DetectState
 cls
 echo  ===============================================
 echo   CEK UPDATE v%VER% - Status ^& Toggle
-echo   oleh GTG COMPUTER
+echo   oleh GTG COMPUTER - WA 085738127969
 echo  ===============================================
 echo.
 echo   Windows Update : %WSTATE%
