@@ -20,3 +20,18 @@ Versi **toolkit lengkap** — menu 8 opsi, self-update otomatis:
 ```powershell
 irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
 ```
+
+## Script Windows — Blokir Update (Windows & Office)
+
+Script `.bat` sekali-jalan: blokir permanen Windows Update & Microsoft Office
+Update. Setiap aksi blokir **backup registry dulu** ke
+`C:\Backup-Blokir-Update\<timestamp>\`, bisa di-restore kapan saja
+(opsi [4]).
+
+Dokumentasi lengkap: [windows/blokir-update/](windows/blokir-update/)
+
+### Pakai cepat (copy-paste di PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/blokir-update/blokir-update.bat -OutFile $env:TEMP\s.bat; saps $env:TEMP\s.bat -Verb RunAs
+```
