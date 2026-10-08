@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=17"
+set "VER=18"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -43,7 +43,8 @@ echo   [4] Bersih TOTAL ala Autodesk
 echo       - hapus SEMUA file+registry Autodesk. HANYA sblm install ulang!
 echo   [5] Whitelist Windows Defender
 echo       - kecualikan AutoCAD dr scan Defender biar enteng.
-echo   [6] Monitor koneksi live acad.exe
+echo   [6] Monitor koneksi live SEMUA proses Autodesk
+echo       - dashboard statis tiap 5 dtk: 0 koneksi = terblokir total.
 echo       - bukti final: 0 koneksi saat CAD dipakai = terblokir total.
 echo   [7] Perbaiki hosts file saja
 echo       - tulis ulang 9 domain Autodesk (tanpa ubah firewall).
@@ -255,37 +256,97 @@ exit /b 0
 :DOMONITOR
 cls
 set "MONLOG=%TEMP%\actkit-monitor.log"
+set "NETTMP=%TEMP%\actkit-net.txt"
+set "TLTMP=%TEMP%\actkit-task.txt"
+set "WATCH=%TEMP%\actkit-watch.txt"
 echo [%date% %time%] Monitor v%VER% dimulai > "%MONLOG%"
 echo.
 echo  ===============================================
-echo   MONITOR KONEKSI LIVE - acad.exe
+echo   MONITOR KONEKSI LIVE - Semua Proses Autodesk
+echo   oleh GTG COMPUTER - WA 085738127969
 echo  ===============================================
-echo  Biarkan window ini terbuka, LALU buka AutoCAD dan pakai biasa.
-echo  STATUS tampil tiap 5 detik:
-echo    MENUNGGU   = acad.exe belum dibuka
-echo    AMAN       = 0 koneksi keluar (terblokir total)
-echo    ADA KONEKSI= ada yang lolos! catat detailnya
-echo  Tutup window ini untuk berhenti.
-echo  (log diagnosis: %MONLOG%)
-echo.
-:MONLOOP
-echo %time% loop >> "%MONLOG%"
-set "ACADPID="
-for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul ^| findstr /v /i "INFO:"') do set "ACADPID=%%P"
-if not defined ACADPID (
-    echo [%time%] STATUS: MENUNGGU - acad.exe belum dibuka...
-) else (
-    set "CONN=0"
-    for /f %%C in ('netstat -ano ^| findstr " %ACADPID% " ^| findstr /v /i "LISTENING" ^| find /c /v ""') do set "CONN=%%C"
-    if "%CONN%"=="0" (
-        echo [%time%] STATUS: AMAN - 0 koneksi keluar (PID %ACADPID%)
-    ) else (
-        echo [%time%] STATUS: ADA %CONN% KONEKSI! Detail:
-        netstat -ano | findstr " %ACADPID% " | findstr /v /i "LISTENING"
+echo  Membangun daftar proses yang dipantau...
+set "SCANDIR=C:\Program Files\Autodesk\AutoCAD 2018"
+type nul > "%WATCH%"
+if exist "%SCANDIR%\acad.exe" (
+    for /r "%SCANDIR%" %%F in (*.exe) do (
+        findstr /i /x /c:"%%~nxF" "%WATCH%" >nul 2>&1
+        if errorlevel 1 echo %%~nxF>>"%WATCH%"
     )
 )
+for %%E in (AdskLicensingService.exe AutodeskDesktopApp.exe AdSSO.exe) do (
+    findstr /i /x /c:"%%E" "%WATCH%" >nul 2>&1
+    if errorlevel 1 echo %%E>>"%WATCH%"
+)
+set "WN=0"
+for /f "usebackq delims=" %%L in ("%WATCH%") do set /a WN+=1
+echo  Memantau %WN% proses Autodesk.
+echo  Biarkan window ini terbuka, LALU buka AutoCAD dan pakai biasa.
+echo  Dashboard me-refresh tiap 5 detik (tampilan statis, tidak hilang).
+echo  Tutup window ini untuk berhenti. Log: %MONLOG%
+echo.
+echo  Tekan tombol apa saja untuk mulai...
+pause >nul
+:MONLOOP
+netstat -ano > "%NETTMP%" 2>nul
+tasklist /fo table /nh > "%TLTMP%" 2>nul
+cls
+echo  ===============================================
+echo   MONITOR LIVE - %WN% proses Autodesk - %time%
+echo  ===============================================
+echo.
+echo   PROSES                   STATUS       KONEKSI
+echo   ------------------------------------------------------
+set "ALERT=0"
+for /f "usebackq delims=" %%E in ("%WATCH%") do call :CheckOne "%%E"
+echo   ------------------------------------------------------
+echo   Refresh tiap 5 detik. Tutup window untuk berhenti.
+if "%ALERT%"=="1" (
+    echo.
+    echo   *** ADA KONEKSI TERDETEKSI! Lihat detail di atas. ***
+)
+echo [%time%] loop, alert=%ALERT% >> "%MONLOG%"
 timeout /t 5 /nobreak >nul
 goto MONLOOP
+
+:CheckOne
+set "PN=%~1"
+set "RXP=%PN:.=\.%"
+set "FOUND=0"
+set "CONN=0"
+for /f "tokens=1,2" %%A in ('findstr /i /r /c:"^ *%RXP% " "%TLTMP%" 2^>nul') do (
+    set "FOUND=1"
+    set "PID=%%B"
+    call :AddConn
+)
+if "%FOUND%"=="0" (
+    call :PadRow "%PN%" "TIDAK JALAN" "-"
+) else if "%CONN%"=="0" (
+    call :PadRow "%PN%" "JALAN" "AMAN (0)"
+) else (
+    call :PadRow "%PN%" "JALAN" "ADA %CONN% KONEKSI!"
+    set "ALERT=1"
+    call :ShowDetail "%PN%"
+)
+exit /b 0
+
+:AddConn
+for /f %%C in ('findstr " %PID% " "%NETTMP%" 2^>nul ^| findstr /v /i "LISTENING" ^| find /c /v ""') do set /a CONN+=%%C
+exit /b 0
+
+:ShowDetail
+set "RXP2=%~1"
+set "RXP2=%RXP2:.=\.%"
+for /f "tokens=1,2" %%A in ('findstr /i /r /c:"^ *%RXP2% " "%TLTMP%" 2^>nul') do (
+    findstr " %%B " "%NETTMP%" 2>nul | findstr /v /i "LISTENING"
+)
+exit /b 0
+
+:PadRow
+set "PA=%~1                        "
+set "PB=%~2             "
+echo   %PA:~0,24% %PB:~0,12% %~3
+exit /b 0
 
 :: ================== [7] HOSTS SAJA ==================
 :DoHostsOnly
