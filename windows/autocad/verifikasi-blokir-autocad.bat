@@ -26,13 +26,15 @@ echo  ===============================================
 echo.
 
 echo [1/4] Cek firewall rules...
-call :ChkRule "Blokir AutoCAD2018 - acad.exe"
-call :ChkRule "Blokir AutoCAD2018 - acad.exe x86"
-call :ChkRule "Blokir AutoCAD2018 - AdSSO"
-call :ChkRule "Blokir AutoCAD2018 - LicensingService"
-call :ChkRule "Blokir AutoCAD2018 - DesktopApp"
-call :ChkRule "Blokir AutoCAD2018 - AcWebBrowser"
-call :ChkRule "Blokir AutoCAD2018 - senddmp"
+call :ChkRule "Blokir AutoCAD2018 - acad.exe" "C:\Program Files\Autodesk\AutoCAD 2018\acad.exe"
+call :ChkRule "Blokir AutoCAD2018 - acad.exe x86" "C:\Program Files (x86)\Autodesk\AutoCAD 2018\acad.exe"
+call :ChkRule "Blokir AutoCAD2018 - AdSSO" "C:\Program Files\Autodesk\AutoCAD 2018\AdSSO\AdSSO.exe"
+call :ChkRule "Blokir AutoCAD2018 - LicensingService" "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\AdskLicensingService\AdskLicensingService.exe"
+call :ChkRule "Blokir AutoCAD2018 - DesktopApp" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe"
+call :ChkRule "Blokir AutoCAD2018 - AcWebBrowser" "C:\Program Files\Autodesk\AutoCAD 2018\AcWebBrowser.exe"
+call :ChkRule "Blokir AutoCAD2018 - senddmp" "C:\Program Files\Autodesk\AutoCAD 2018\senddmp.exe"
+netsh advfirewall firewall show rule name="Blokir AutoCAD2018 - custom" 2>nul | findstr /i /c:"Enabled:" | findstr /i "Yes" >nul
+if not errorlevel 1 echo      [INFO] Rule custom path juga aktif.
 echo.
 
 echo [2/4] Cek hosts file (domain Autodesk harus ada di daftar blokir)...
@@ -74,6 +76,11 @@ exit /b 0
 
 :: ================= Subrutin =================
 :ChkRule
+if not exist "%~2" (
+    echo      [OK]   %~1 tidak diperlukan (file tidak ada di PC)
+    set /a PASS+=1
+    exit /b 0
+)
 netsh advfirewall firewall show rule name="%~1" 2>nul | findstr /i /c:"Enabled:" | findstr /i "Yes" >nul
 if not errorlevel 1 (
     echo      [OK]   %~1
