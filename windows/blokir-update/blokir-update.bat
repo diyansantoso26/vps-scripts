@@ -9,7 +9,7 @@ rem  file .reg + manifest. Opsi [4] Restore mengembalikan semua
 rem  seperti semula dari backup terakhir.
 rem  Dibuat oleh GTG COMPUTER
 rem ============================================================
-set "VER=2"
+set "VER=3"
 set "REPO=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/blokir-update"
 
 :: ---------- cek update otomatis ----------
@@ -49,7 +49,7 @@ if %errorLevel% neq 0 (
 cls
 echo  ===============================================
 echo   BLOKIR UPDATE v%VER% - Windows ^& Office
-echo   oleh GTG COMPUTER
+echo   oleh GTG COMPUTER - WA 085738127969
 echo  ===============================================
 echo.
 echo   [1] Blokir Windows Update saja
