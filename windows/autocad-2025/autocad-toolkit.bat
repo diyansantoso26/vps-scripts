@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=1"
+set "VER=2"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -29,7 +29,7 @@ call :CheckUpdate
 cls
 echo.
 echo  ===============================================
-echo   AUTOCAD 2018 TOOLKIT v%VER%
+echo   AUTOCAD 2025 TOOLKIT v%VER%
 echo   oleh GTG COMPUTER - WA 085738127969
 echo  ===============================================
 echo.
