@@ -42,7 +42,7 @@ if "%PILIH%"=="2" ( call :DoVerify & goto MENU )
 if "%PILIH%"=="3" ( call :DoCleanLicense & goto MENU )
 if "%PILIH%"=="4" ( call :DoFullWipe & goto MENU )
 if "%PILIH%"=="5" ( call :DoWhitelist & goto MENU )
-if "%PILIH%"=="6" ( call :DoMonitor & goto MENU )
+if "%PILIH%"=="6" goto DOMONITOR
 if "%PILIH%"=="7" ( call :DoHostsOnly & goto MENU )
 if "%PILIH%"=="8" ( call :DoScan & goto MENU )
 if "%PILIH%"=="0" exit /b 0
@@ -214,29 +214,36 @@ pause
 exit /b 0
 
 :: ================== [6] MONITOR ==================
-:DoMonitor
+:DOMONITOR
+cls
 echo.
-echo  --- [6] MONITOR KONEKSI LIVE ---
+echo  ===============================================
+echo   MONITOR KONEKSI LIVE - acad.exe
+echo  ===============================================
 echo  Biarkan window ini terbuka, LALU buka AutoCAD dan pakai biasa.
-echo  Kalau setelah dipakai tidak muncul koneksi apa-apa = TERBUKTI terblokir.
-echo  Refresh tiap 5 detik. Tutup window ini untuk berhenti.
+echo  STATUS tampil tiap 5 detik:
+echo    MENUNGGU   = acad.exe belum dibuka
+echo    AMAN       = 0 koneksi keluar (terblokir total)
+echo    ADA KONEKSI= ada yang lolos! catat detailnya
+echo  Tutup window ini untuk berhenti.
 echo.
-for /l %%i in (1,0,2) do call :MonIter
-exit /b 0
-
-:MonIter
+:MONLOOP
 set "ACADPID="
 for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul ^| findstr /v /i "INFO:"') do set "ACADPID=%%P"
 if not defined ACADPID (
-    echo [%time%] menunggu acad.exe dibuka...
+    echo [%time%] STATUS: MENUNGGU - acad.exe belum dibuka...
 ) else (
-    echo.
-    echo [%time%] acad.exe (PID %ACADPID%) - koneksi aktif:
-    netstat -ano | findstr " %ACADPID% " | findstr /v /i "LISTENING"
-    echo   (tidak ada baris di atas = tidak ada koneksi keluar)
+    set "CONN=0"
+    for /f %%C in ('netstat -ano ^| findstr " %ACADPID% " ^| findstr /v /i "LISTENING" ^| find /c /v ""') do set "CONN=%%C"
+    if "%CONN%"=="0" (
+        echo [%time%] STATUS: AMAN - 0 koneksi keluar (PID %ACADPID%)
+    ) else (
+        echo [%time%] STATUS: ADA %CONN% KONEKSI! Detail:
+        netstat -ano | findstr " %ACADPID% " | findstr /v /i "LISTENING"
+    )
 )
 timeout /t 5 /nobreak >nul
-exit /b 0
+goto MONLOOP
 
 :: ================== [7] HOSTS SAJA ==================
 :DoHostsOnly
