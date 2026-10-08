@@ -119,10 +119,16 @@ if [[ "$MODE" == "1" && -z "$TUNNEL_ID" ]]; then
     exit 1
   fi
 
-  # gdown = downloader Google Drive yang handal untuk file besar
+  # gdown = downloader Google Drive yang handal untuk file besar.
+  # pip kadang belum ada di VPS fresh -> install python3-pip dulu via apt.
   if ! python3 -c "import gdown" 2>/dev/null; then
     echo "Install gdown (sekali saja)..."
-    pip install -q --break-system-packages gdown
+    if ! python3 -m pip --version >/dev/null 2>&1; then
+      echo "pip belum ada, install python3-pip dulu..."
+      apt-get update -qq
+      DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3-pip
+    fi
+    python3 -m pip install -q --break-system-packages gdown
   fi
 
   BKDIR="/root/cf-restore-$$"
