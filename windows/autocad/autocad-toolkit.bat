@@ -215,11 +215,10 @@ exit /b 0
 
 :: ================== [6] MONITOR ==================
 :DoMonitor
-set "MONSTATE="
 echo.
 echo  --- [6] MONITOR KONEKSI LIVE ---
-echo  Cara pakai: biarkan window ini terbuka, LALU buka AutoCAD.
-echo  Koneksi acad.exe akan muncul di bawah otomatis.
+echo  Biarkan window ini terbuka, LALU buka AutoCAD dan pakai biasa.
+echo  Kalau setelah dipakai tidak muncul koneksi apa-apa = TERBUKTI terblokir.
 echo  Refresh tiap 5 detik. Tutup window ini untuk berhenti.
 echo.
 for /l %%i in (1,0,2) do call :MonIter
@@ -227,19 +226,12 @@ exit /b 0
 
 :MonIter
 set "ACADPID="
-for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul') do set "ACADPID=%%P"
+for /f "tokens=2" %%P in ('tasklist /fi "imagename eq acad.exe" /fo table /nh 2^>nul ^| findstr /v /i "INFO:"') do set "ACADPID=%%P"
 if not defined ACADPID (
-    if not "%MONSTATE%"=="down" (
-        echo [%time%] acad.exe belum berjalan. Buka AutoCAD dulu...
-    )
-    set "MONSTATE=down"
+    echo [%time%] menunggu acad.exe dibuka...
 ) else (
-    if not "%MONSTATE%"=="up" (
-        echo.
-        echo [%time%] acad.exe TERDETEKSI (PID %ACADPID%). Memantau koneksi...
-    )
-    set "MONSTATE=up"
-    echo --- %time% ---
+    echo.
+    echo [%time%] acad.exe (PID %ACADPID%) - koneksi aktif:
     netstat -ano | findstr " %ACADPID% " | findstr /v /i "LISTENING"
     echo   (tidak ada baris di atas = tidak ada koneksi keluar)
 )
