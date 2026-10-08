@@ -19,7 +19,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=13"
+set "VER=14"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -31,14 +31,22 @@ echo  ===============================================
 echo   AUTOCAD 2018 TOOLKIT v%VER%
 echo  ===============================================
 echo.
-echo   [1] Blokir internet total (firewall+service+hosts)
-echo   [2] Verifikasi blokir (cek benar-benar terblokir)
-echo   [3] Bersihkan data lisensi (tanpa install ulang Windows)
-echo   [4] Bersih TOTAL ala Autodesk (lanjut install ulang CAD)
+echo   [1] Blokir internet total
+echo       - firewall+service+hosts. JALANKAN INI DULUAN.
+echo   [2] Verifikasi blokir
+echo       - cek firewall, hosts, service. Target: 19/19 lolos.
+echo   [3] Bersihkan data lisensi
+echo       - hapus file lisensi/aktivasi. Perlu aktivasi ulang!
+echo   [4] Bersih TOTAL ala Autodesk
+echo       - hapus SEMUA file+registry Autodesk. HANYA sblm install ulang!
 echo   [5] Whitelist Windows Defender
+echo       - kecualikan AutoCAD dr scan Defender biar enteng.
 echo   [6] Monitor koneksi live acad.exe
+echo       - bukti final: 0 koneksi saat CAD dipakai = terblokir total.
 echo   [7] Perbaiki hosts file saja
-echo   [8] Scan semua EXE bawaan paket (cek yg perlu diblokir)
+echo       - tulis ulang 9 domain Autodesk (tanpa ubah firewall).
+echo   [8] Scan semua EXE bawaan paket
+echo       - daftar semua .exe + status blokir firewall-nya.
 echo   [0] Keluar
 echo.
 set /p PILIH="  Pilih [0-8]: "
