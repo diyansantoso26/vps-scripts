@@ -35,7 +35,7 @@ call :ChkRule "Blokir AutoCAD2018 - AcWebBrowser"
 call :ChkRule "Blokir AutoCAD2018 - senddmp"
 echo.
 
-echo [2/4] Cek hosts (domain Autodesk harus -^> 127.0.0.1)...
+echo [2/4] Cek hosts file (domain Autodesk harus ada di daftar blokir)...
 call :ChkHost genuine-software.autodesk.com
 call :ChkHost genuine-software1.autodesk.com
 call :ChkHost cur.autodesk.com
@@ -85,13 +85,12 @@ if not errorlevel 1 (
 exit /b 0
 
 :ChkHost
-set "HIP=?"
-for /f %%I in ('powershell -NoProfile -Command "[System.Net.Dns]::GetHostAddresses('%~1') ^| Select-Object -First 1 -ExpandProperty IPAddressToString" 2^>nul') do set "HIP=%%I"
-if "%HIP%"=="127.0.0.1" (
-    echo      [OK]   %~1 -^> 127.0.0.1
+findstr /i /c:"%~1" "%SystemRoot%\System32\drivers\etc\hosts" >nul 2>&1
+if not errorlevel 1 (
+    echo      [OK]   %~1 ada di hosts file
     set /a PASS+=1
 ) else (
-    echo      [GAGAL] %~1 -^> %HIP% (harusnya 127.0.0.1)
+    echo      [GAGAL] %~1 tidak ada di hosts file
     set /a FAIL+=1
 )
 exit /b 0
@@ -114,13 +113,16 @@ if errorlevel 1 (
 exit /b 0
 
 :ChkTcp
-set "TRES=?"
-for /f %%R in ('powershell -NoProfile -Command "$r=Test-NetConnection -ComputerName '%~1' -Port 443 -WarningAction SilentlyContinue; if($r.TcpTestSucceeded){'BOCOR'}else{'OK'}" 2^>nul') do set "TRES=%%R"
+set "TRES=ERROR"
+for /f %%R in ('powershell -NoProfile -Command "try { $r=Test-NetConnection -ComputerName '%~1' -Port 443 -WarningAction SilentlyContinue; if($r.TcpTestSucceeded){'BOCOR'}else{'OK'} } catch { 'ERROR' }" 2^>nul') do set "TRES=%%R"
 if "%TRES%"=="OK" (
     echo      [OK]   %~1:443 tidak bisa dihubungi (terblokir)
     set /a PASS+=1
-) else (
+) else if "%TRES%"=="BOCOR" (
     echo      [GAGAL] %~1:443 MASIH BISA dihubungi!
+    set /a FAIL+=1
+) else (
+    echo      [?]    %~1:443 tidak bisa dites (cek koneksi internet PC)
     set /a FAIL+=1
 )
 exit /b 0
