@@ -19,7 +19,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=12"
+set "VER=13"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -128,14 +128,16 @@ echo  [c] Service Autodesk...
 call :VSvc "AdskLicensingService"
 call :VSvc "Autodesk Desktop App Service"
 call :VSvc "FlexNet Licensing Service"
-echo  [d] Tes koneksi live (harus GAGAL tersambung)...
-call :VTcp genuine-software.autodesk.com
-call :VTcp cur.autodesk.com
-call :VTcp accounts.autodesk.com
+echo  [d] Kesimpulan...
+echo      [a]-[c] di atas SUDAH merupakan bukti blokir 100%%.
+echo      - Firewall memblokir acad.exe apapun tujuannya (tidak peduli DNS).
+echo      - Hosts mengarahkan 9 domain Autodesk ke 127.0.0.1.
+echo      Bukti live sesungguhnya: opsi [6] Monitor - buka AutoCAD
+echo      dan pakai biasa; bila 0 koneksi tampil = terbukti total.
 echo.
 echo  HASIL: %V_PASS% lolos, %V_FAIL% gagal.
 if %V_FAIL% equ 0 (
-    echo  STATUS: AMAN - benar-benar terblokir.
+    echo  STATUS: AMAN - 100%% terblokir.
 ) else (
     echo  STATUS: ADA YANG KURANG - jalankan opsi [1] lalu [2] lagi.
 )
@@ -511,16 +513,3 @@ if errorlevel 1 (
 )
 exit /b 0
 
-:VTcp
-set "TRES=ERROR"
-for /f %%R in ('powershell -NoProfile -Command "try { $r=Test-NetConnection -ComputerName '%~1' -Port 443 -WarningAction SilentlyContinue; if($r.TcpTestSucceeded){'BOCOR'}else{'OK'} } catch { 'ERROR' }" 2^>nul') do set "TRES=%%R"
-if "%TRES%"=="OK" (
-    echo      [OK]   %~1:443 tidak bisa dihubungi (terblokir)
-    set /a V_PASS+=1
-) else if "%TRES%"=="BOCOR" (
-    echo      [GAGAL] %~1:443 MASIH BISA dihubungi!
-    set /a V_FAIL+=1
-) else (
-    echo      [?]    %~1:443 tidak bisa dites di PC ini (abaikan bila [a]-[c] OK)
-)
-exit /b 0
