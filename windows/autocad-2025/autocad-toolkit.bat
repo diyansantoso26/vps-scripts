@@ -20,9 +20,9 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=11"
-set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
-set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
+set "VER=12"
+set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION?cb=%RANDOM%"
+set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat?cb=%RANDOM%"
 call :CheckUpdate
 
 :MENU
@@ -379,7 +379,7 @@ echo  --- [10] FULL RESET SEKALIGUS ---
 echo  kill koneksi + bersih flag Genuine Service + blokir total.
 echo  Setelah ini: restart PC, baru aktivasi ulang.
 echo.
-set "FRURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-full-reset.bat"
+set "FRURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-full-reset.bat?cb=%RANDOM%"
 set "FRBAT=%TEMP%\autocad-full-reset.bat"
 echo  Mengunduh script full-reset...
 powershell -NoProfile -Command "try { Invoke-WebRequest -Uri '%FRURL%' -OutFile '%FRBAT%' -UseBasicParsing -TimeoutSec 60; 'FRDOK' } catch { 'FRDFAIL' }" > "%TEMP%\frd.txt" 2>nul
@@ -400,7 +400,7 @@ echo.
 echo  --- [11] PASANG WATCHDOG MONITORING ---
 echo  Download installer, lalu dibuka otomatis sebagai user biasa.
 echo.
-set "WDURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/pasang-watchdog-autocad.bat"
+set "WDURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/pasang-watchdog-autocad.bat?cb=%RANDOM%"
 set "WDBAT=%TEMP%\pasang-watchdog-autocad.bat"
 powershell -NoProfile -Command "try { Invoke-WebRequest -Uri '%WDURL%' -OutFile '%WDBAT%' -UseBasicParsing -TimeoutSec 60; 'WDOK' } catch { 'WDFAIL' }" > "%TEMP%\wd.txt" 2>nul
 findstr /i "WDOK" "%TEMP%\wd.txt" >nul 2>&1
