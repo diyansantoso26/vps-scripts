@@ -43,8 +43,15 @@ if not exist "%DST%\autocad-watchdog.ps1" (
     pause
     exit /b 1
 )
-echo  Membuat jadwal tiap 30 menit...
-schtasks /create /tn "AutoCAD Watchdog GTG" /tr "powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File '%DST%\autocad-watchdog.ps1'" /sc minute /mo %WDINT% /f
+powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/run-watchdog-hidden.vbs' -OutFile '%DST%\run-watchdog-hidden.vbs' -UseBasicParsing"
+if not exist "%DST%\run-watchdog-hidden.vbs" (
+    echo  GAGAL mengunduh launcher. Cek internet lalu coba lagi.
+    pause
+    exit /b 1
+)
+echo  Membuat jadwal tiap %WDINT% menit (tanpa popup)...
+powershell -NoProfile -Command "try { $vbsArg = [char]34 + '%DST%\run-watchdog-hidden.vbs' + [char]34; $a = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument $vbsArg; $t = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes %WDINT%); Register-ScheduledTask -TaskName 'AutoCAD Watchdog GTG' -Action $a -Trigger $t -Force | Out-Null; 'TASKOK' } catch { 'TASKFAIL' }" > "%TEMP%\wdt.txt" 2>nul
+findstr /i "TASKOK" "%TEMP%\wdt.txt" >nul 2>&1
 if errorlevel 1 (
     echo  GAGAL membuat jadwal.
     pause
@@ -64,6 +71,7 @@ exit /b 0
 :REMOVE
 schtasks /delete /tn "AutoCAD Watchdog GTG" /f >nul 2>&1
 del "%DST%\autocad-watchdog.ps1" 2>nul
+del "%DST%\run-watchdog-hidden.vbs" 2>nul
 del "%DST%\watchdog.state" 2>nul
 echo  Watchdog dihapus.
 pause
