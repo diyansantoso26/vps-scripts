@@ -23,7 +23,7 @@ echo   BERSIHKAN FLAG GENUINE SERVICE AUTOCAD
 echo  ===============================================
 echo.
 echo [1/4] Menutup proses Autodesk...
-for %%P in (GenuineService.exe acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe AcWebBrowser.exe AcCefSubprocess.exe AdAppMgrSvc.exe) do (
+for %%P in (GenuineService.exe acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe AcWebBrowser.exe AcCefSubprocess.exe AdAppMgrSvc.exe AdSync.exe) do (
     taskkill /f /im %%P >nul 2>&1
 )
 echo       Selesai.
