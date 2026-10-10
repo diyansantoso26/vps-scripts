@@ -17,13 +17,18 @@ set "DST=%LOCALAPPDATA%\GTG"
 if not exist "%DST%" mkdir "%DST%" >nul 2>&1
 
 echo.
-echo  [1] Pasang watchdog (cek tiap 30 menit)
-echo  [2] Hapus watchdog
+echo  [1] Pasang watchdog - cek tiap 1 menit (ketat)
+echo  [2] Pasang watchdog - cek tiap 5 menit
+echo  [3] Pasang watchdog - cek tiap 30 menit (hemat)
+echo  [4] Hapus watchdog
 echo  [0] Batal
 echo.
 set /p P="  Pilih: "
-if "%P%"=="1" goto INSTALL
-if "%P%"=="2" goto REMOVE
+if "%P%"=="1" set WDINT=1
+if "%P%"=="2" set WDINT=5
+if "%P%"=="3" set WDINT=30
+if defined WDINT goto INSTALL
+if "%P%"=="4" goto REMOVE
 exit /b 0
 
 :INSTALL
@@ -36,7 +41,7 @@ if not exist "%DST%\autocad-watchdog.ps1" (
     exit /b 1
 )
 echo  Membuat jadwal tiap 30 menit...
-schtasks /create /tn "AutoCAD Watchdog GTG" /tr "powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File '%DST%\autocad-watchdog.ps1'" /sc minute /mo 30 /f
+schtasks /create /tn "AutoCAD Watchdog GTG" /tr "powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File '%DST%\autocad-watchdog.ps1'" /sc minute /mo %WDINT% /f
 if errorlevel 1 (
     echo  GAGAL membuat jadwal.
     pause
@@ -45,7 +50,7 @@ if errorlevel 1 (
 echo  Tes notifikasi...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%DST%\autocad-watchdog.ps1" -Test
 echo.
-echo  BERES! Watchdog aktif, cek tiap 30 menit (tanpa jendela).
+echo  BERES! Watchdog aktif, cek tiap %WDINT% menit (tanpa jendela).
 echo  - Koneksi Autodesk yg lolos: langsung dimatikan + notifikasi.
 echo  - Rule/hosts/service bermasalah: notifikasi, jalankan toolkit [1].
 echo  - Saat toolkit [9] dipakai: watchdog nonaktif otomatis.
