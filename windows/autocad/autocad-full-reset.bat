@@ -55,7 +55,7 @@ for %%S in ("AdskGenuineService" "AdskLicensingService" "Autodesk Desktop App Se
 if "%R3%"=="GAGAL" ( echo      ! Ada service belum disabled ) else ( echo       Selesai. )
 call :Notice "3/6" "Disable service" "%R3%"
 echo.
-echo [4/6] Hapus data Genuine Service + lisensi...
+echo [4/6] Hapus data Genuine Service + lisensi (deep wipe)...
 if exist "C:\Program Files\Autodesk\Autodesk Genuine Service" rmdir /s /q "C:\Program Files\Autodesk\Autodesk Genuine Service"
 if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" rmdir /s /q "C:\ProgramData\Autodesk\Autodesk Genuine Service"
 if exist "%LOCALAPPDATA%\Autodesk\Autodesk Genuine Service" rmdir /s /q "%LOCALAPPDATA%\Autodesk\Autodesk Genuine Service"
@@ -64,7 +64,14 @@ if exist "C:\ProgramData\FLEXnet\adskflex_*.data" del /f /q "C:\ProgramData\FLEX
 if exist "C:\ProgramData\Autodesk\CLM\LGS" del /f /q "C:\ProgramData\Autodesk\CLM\LGS\*"
 if exist "%LOCALAPPDATA%\Autodesk\Web Services" rmdir /s /q "%LOCALAPPDATA%\Autodesk\Web Services"
 reg delete "HKLM\SOFTWARE\FLEXlm License Manager" /f >nul 2>&1
-if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" ( set R4=GAGAL ^& echo      ! Folder Genuine Service masih ada ) else ( echo       Selesai. )
+echo       Deep wipe tambahan...
+if exist "C:\ProgramData\Autodesk\AdskLicensingService" rmdir /s /q "C:\ProgramData\Autodesk\AdskLicensingService"
+if exist "%APPDATA%\Autodesk\AdskLicensingService" rmdir /s /q "%APPDATA%\Autodesk\AdskLicensingService"
+if exist "%LOCALAPPDATA%\Autodesk\Identity Services" rmdir /s /q "%LOCALAPPDATA%\Autodesk\Identity Services"
+call :WipeAdLM
+if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" set R4=GAGAL
+call :CheckAdLM
+if "%R4%"=="GAGAL" ( echo      ! Masih ada sisa data lisensi ) else ( echo       Selesai. )
 call :Notice "4/6" "Hapus data Genuine Service + lisensi" "%R4%"
 echo.
 echo [5/6] Pasang firewall block total...
@@ -135,6 +142,27 @@ netsh advfirewall firewall add rule name="%~2" dir=out action=block program="%~1
 if errorlevel 1 ( echo       ! GAGAL: %~2 ) else ( echo       + %~2 )
 exit /b 0
 
+:WipeAdLM
+rem hapus kunci AdLM (status lisensi) semua versi AutoCAD R22-R25
+for %%V in (R22.0 R23.0 R23.1 R24.0 R24.1 R24.2 R24.3 R25.0) do (
+    for /f "tokens=*" %%K in ('reg query "HKCU\SOFTWARE\Autodesk\AutoCAD\%%V" 2^>nul ^| findstr /i "ACAD-"') do (
+        reg delete "%%K\AdLM" /f >nul 2>&1
+    )
+    for /f "tokens=*" %%K in ('reg query "HKLM\SOFTWARE\Autodesk\AutoCAD\%%V" 2^>nul ^| findstr /i "ACAD-"') do (
+        reg delete "%%K\AdLM" /f >nul 2>&1
+    )
+)
+exit /b 0
+
+:CheckAdLM
+rem verifikasi: tidak boleh ada subkey AdLM tersisa
+for %%V in (R22.0 R23.0 R23.1 R24.0 R24.1 R24.2 R24.3 R25.0) do (
+    reg query "HKCU\SOFTWARE\Autodesk\AutoCAD\%%V" 2>nul ^| findstr /i "AdLM" >nul
+    if not errorlevel 1 set R4=GAGAL
+    reg query "HKLM\SOFTWARE\Autodesk\AutoCAD\%%V" 2>nul ^| findstr /i "AdLM" >nul
+    if not errorlevel 1 set R4=GAGAL
+)
+exit /b 0
 :CheckAcadRule
 set ACADOK=0
 netsh advfirewall firewall show rule name="Blokir AutoCAD2018 - acad.exe" >nul 2>&1
