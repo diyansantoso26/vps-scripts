@@ -26,7 +26,7 @@ echo [1/3] Kill proses Autodesk yang dikenal...
 set KILLED=0
 for %%P in (
     acad.exe AcWebBrowser.exe AcCefSubprocess.exe
-    AdSSO.exe AutodeskDesktopApp.exe AdAppMgr.exe AdAppMgrSvc.exe
+    AdSSO.exe AutodeskDesktopApp.exe AdAppMgr.exe AdAppMgrSvc.exe AdSync.exe
     AdskLicensingService.exe AdskLicensingAgent.exe GenuineService.exe
     senddmp.exe
 ) do (
