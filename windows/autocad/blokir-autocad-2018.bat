@@ -31,6 +31,7 @@ call :BlockProg "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensi
 call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe" "Blokir AutoCAD2018 - DesktopApp"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\AcWebBrowser.exe" "Blokir AutoCAD2018 - AcWebBrowser"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\senddmp.exe" "Blokir AutoCAD2018 - senddmp"
+call :BlockProg "C:\Program Files\Autodesk\Autodesk Genuine Service\GenuineService.exe" "Blokir AutoCAD2018 - GenuineService"
 echo.
 set /p CUSTOM="  Path acad.exe lain (mis. drive D:, kosongkan bila tidak ada): "
 if defined CUSTOM call :BlockProg "%CUSTOM%" "Blokir AutoCAD2018 - custom"
@@ -42,6 +43,7 @@ echo [2/3] Menonaktifkan service Autodesk...
 call :DisSvc "AdskLicensingService"
 call :DisSvc "Autodesk Desktop App Service"
 call :DisSvc "FlexNet Licensing Service"
+call :DisSvc "AdskGenuineService"
 echo       Selesai.
 echo.
 
