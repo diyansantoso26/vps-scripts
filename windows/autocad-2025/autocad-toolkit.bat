@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=4"
+set "VER=5"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -100,6 +100,7 @@ call :BlockProg "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensi
 call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe" "Blokir AutoCAD2025 - DesktopApp"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\AcWebBrowser.exe" "Blokir AutoCAD2025 - AcWebBrowser"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\senddmp.exe" "Blokir AutoCAD2025 - senddmp"
+call :BlockProg "C:\Program Files\Autodesk\Autodesk Genuine Service\GenuineService.exe" "Blokir AutoCAD2025 - GenuineService"
 echo.
 set /p CUSTOM="  Path acad.exe lain (kosongkan bila tidak ada): "
 if defined CUSTOM call :BlockProg "%CUSTOM%" "Blokir AutoCAD2025 - custom"
@@ -107,6 +108,7 @@ echo  [b] Service Autodesk -^> disabled...
 call :DisSvc "AdskLicensingService"
 call :DisSvc "Autodesk Desktop App Service"
 call :DisSvc "FlexNet Licensing Service"
+call :DisSvc "AdskGenuineService"
 echo  [c] Hosts file...
 call :WriteHosts
 echo.
@@ -128,6 +130,7 @@ call :VRule "Blokir AutoCAD2025 - LicensingService" "C:\Program Files (x86)\Comm
 call :VRule "Blokir AutoCAD2025 - DesktopApp" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe"
 call :VRule "Blokir AutoCAD2025 - AcWebBrowser" "C:\Program Files\Autodesk\AutoCAD 2025\AcWebBrowser.exe"
 call :VRule "Blokir AutoCAD2025 - senddmp" "C:\Program Files\Autodesk\AutoCAD 2025\senddmp.exe"
+call :VRule "Blokir AutoCAD2025 - GenuineService" "C:\Program Files\Autodesk\Autodesk Genuine Service\GenuineService.exe"
 echo  [b] Hosts file...
 call :VHost genuine-software.autodesk.com
 call :VHost genuine-software1.autodesk.com
@@ -142,6 +145,7 @@ echo  [c] Service Autodesk...
 call :VSvc "AdskLicensingService"
 call :VSvc "Autodesk Desktop App Service"
 call :VSvc "FlexNet Licensing Service"
+call :VSvc "AdskGenuineService"
 echo  [d] Kesimpulan...
 echo      [a]-[c] di atas SUDAH merupakan bukti blokir 100%%.
 echo      - Firewall memblokir acad.exe apapun tujuannya (tidak peduli DNS).
@@ -378,7 +382,7 @@ for %%H in (
 ipconfig /flushdns >nul 2>&1
 echo      + hosts dibersihkan
 echo  [c] Service Autodesk kembali ke Manual...
-for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service") do (
+for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service" "AdskGenuineService") do (
     sc query %%~S >nul 2>&1
     if not errorlevel 1 sc config %%~S start= demand >nul 2>&1
 )
@@ -538,10 +542,10 @@ exit /b 0
 
 :KillAuto
 echo  [a] Menutup proses + service Autodesk...
-for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe) do (
+for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe) do (
     taskkill /f /im %%P >nul 2>&1
 )
-for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service") do (
+for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service" "AdskGenuineService") do (
     sc stop %%~S >nul 2>&1
     sc config %%~S start= disabled >nul 2>&1
 )
@@ -561,6 +565,12 @@ if exist "C:\ProgramData\Autodesk\CLM\LGS" (
     echo      + data lisensi CLM dihapus
 ) else (
     echo      - folder CLM tidak ada, dilewati
+)
+if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" (
+    rmdir /s /q "C:\ProgramData\Autodesk\Autodesk Genuine Service"
+    echo      + data Autodesk Genuine Service dihapus
+) else (
+    echo      - data Genuine Service tidak ada, dilewati
 )
 if exist "%LOCALAPPDATA%\Autodesk\Web Services" (
     rmdir /s /q "%LOCALAPPDATA%\Autodesk\Web Services"
