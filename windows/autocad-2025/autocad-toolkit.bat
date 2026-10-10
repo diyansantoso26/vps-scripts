@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=10"
+set "VER=11"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -54,9 +54,13 @@ echo   [9] Nonaktifkan blokir AutoCAD 2025
 echo       - hapus rule firewall + hosts. Konfirmasi YA.
 echo   [10] FULL RESET sekaligus (kill+bersih+blokir)
 echo       - 1x jalan: bersih flag Genuine Service + blokir total.
+echo   [11] Pasang watchdog monitoring
+echo       - cek tiap 1 mnt: koneksi lolos dibunuh + notifikasi.
+echo   [12] Cek status lisensi aktif
+echo       - lihat data aktivasi AutoCAD yg terpasang.
 echo   [0] Keluar
 echo.
-set /p PILIH="  Pilih [0-10]: "
+set /p PILIH="  Pilih [0-12]: "
 if "%PILIH%"=="1" ( call :DoBlock & goto MENU )
 if "%PILIH%"=="2" ( call :DoVerify & goto MENU )
 if "%PILIH%"=="3" ( call :DoCleanLicense & goto MENU )
@@ -67,6 +71,8 @@ if "%PILIH%"=="7" ( call :DoHostsOnly & goto MENU )
 if "%PILIH%"=="8" ( call :DoScan & goto MENU )
 if "%PILIH%"=="9" ( call :DoUnblock & goto MENU )
 if "%PILIH%"=="10" ( call :DoFullReset & goto MENU )
+if "%PILIH%"=="11" ( call :DoWatchdogInstall & goto MENU )
+if "%PILIH%"=="12" ( call :DoLicenseCheck & goto MENU )
 if "%PILIH%"=="0" exit /b 0
 echo  Pilihan tidak valid.
 pause
@@ -387,6 +393,70 @@ if errorlevel 1 (
 echo  Menjalankan full-reset...
 call "%FRBAT%"
 del "%FRBAT%" 2>nul
+exit /b 0
+:: ================== [11] PASANG WATCHDOG ==================
+:DoWatchdogInstall
+echo.
+echo  --- [11] PASANG WATCHDOG MONITORING ---
+echo  Download installer, lalu dibuka otomatis sebagai user biasa.
+echo.
+set "WDURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/pasang-watchdog-autocad.bat"
+set "WDBAT=%TEMP%\pasang-watchdog-autocad.bat"
+powershell -NoProfile -Command "try { Invoke-WebRequest -Uri '%WDURL%' -OutFile '%WDBAT%' -UseBasicParsing -TimeoutSec 60; 'WDOK' } catch { 'WDFAIL' }" > "%TEMP%\wd.txt" 2>nul
+findstr /i "WDOK" "%TEMP%\wd.txt" >nul 2>&1
+del "%TEMP%\wd.txt" 2>nul
+if errorlevel 1 (
+    echo  GAGAL mengunduh. Cek koneksi internet.
+    pause
+    exit /b 1
+)
+echo  Menjalankan installer (ikuti jendela yang terbuka)...
+call "%WDBAT%"
+exit /b 0
+
+:: ================== [12] CEK LISENSI ==================
+:DoLicenseCheck
+echo.
+echo  --- [12] CEK STATUS LISENSI AKTIF ---
+echo.
+set LCFOUND=0
+for %%V in (R22.0 R23.0 R23.1 R24.0 R24.1 R24.2 R24.3 R25.0) do (
+    for /f "tokens=*" %%K in ('reg query "HKCU\SOFTWARE\Autodesk\AutoCAD\%%V" 2^>nul ^| findstr /i "ACAD-"') do (
+        set LCFOUND=1
+        echo  [*] %%K
+        reg query "%%K\AdLM" >nul 2>&1
+        if not errorlevel 1 (
+            echo      AdLM: ADA - ada data aktivasi tersimpan
+        ) else (
+            echo      AdLM: TIDAK ADA - belum aktivasi / sudah di-wipe
+        )
+    )
+)
+if "%LCFOUND%"=="0" echo  Tidak ada instalasi AutoCAD terdeteksi di registry.
+echo.
+echo  [FLEXnet trusted storage]
+dir /b "C:\ProgramData\FLEXnet\adskflex_*" 2>nul
+if errorlevel 1 echo      - kosong (tidak ada data lisensi)
+echo.
+echo  [Genuine Service]
+sc query AdskGenuineService >nul 2>&1
+if errorlevel 1 (
+    echo      Service: tidak terinstall
+) else (
+    sc qc AdskGenuineService 2>nul ^| findstr /i "DISABLED" >nul
+    if not errorlevel 1 (
+        echo      Service: DISABLED (aman)
+    ) else (
+        echo      Service: TIDAK DISABLED (warning!)
+    )
+)
+if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" (
+    echo      Flag: ADA - berisiko error 'no longer have access'
+) else (
+    echo      Flag: bersih
+)
+echo.
+pause
 exit /b 0
 :DoUnblock
 echo.
