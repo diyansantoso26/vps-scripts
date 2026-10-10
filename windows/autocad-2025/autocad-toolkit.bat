@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=7"
+set "VER=8"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -99,6 +99,7 @@ call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\AdSSO\AdSSO.exe" "Blokir
 call :BlockProg "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\AdskLicensingService\AdskLicensingService.exe" "Blokir AutoCAD2025 - LicensingService"
 call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe" "Blokir AutoCAD2025 - DesktopApp"
 call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AdAppMgrSvc.exe" "Blokir AutoCAD2025 - AdAppMgrSvc"
+call :BlockProg "C:\Program Files\Autodesk\Autodesk Sync\AdSync.exe" "Blokir AutoCAD2025 - AdSync"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\AcWebBrowser.exe" "Blokir AutoCAD2025 - AcWebBrowser"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\AcCefSubprocess.exe" "Blokir AutoCAD2025 - AcCefSubprocess"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2025\senddmp.exe" "Blokir AutoCAD2025 - senddmp"
@@ -131,6 +132,7 @@ call :VRule "Blokir AutoCAD2025 - AdSSO" "C:\Program Files\Autodesk\AutoCAD 2025
 call :VRule "Blokir AutoCAD2025 - LicensingService" "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\AdskLicensingService\AdskLicensingService.exe"
 call :VRule "Blokir AutoCAD2025 - DesktopApp" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe"
 call :VRule "Blokir AutoCAD2025 - AdAppMgrSvc" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AdAppMgrSvc.exe"
+call :VRule "Blokir AutoCAD2025 - AdSync" "C:\Program Files\Autodesk\Autodesk Sync\AdSync.exe"
 call :VRule "Blokir AutoCAD2025 - AcWebBrowser" "C:\Program Files\Autodesk\AutoCAD 2025\AcWebBrowser.exe"
 call :VRule "Blokir AutoCAD2025 - AcCefSubprocess" "C:\Program Files\Autodesk\AutoCAD 2025\AcCefSubprocess.exe"
 call :VRule "Blokir AutoCAD2025 - senddmp" "C:\Program Files\Autodesk\AutoCAD 2025\senddmp.exe"
@@ -546,7 +548,7 @@ exit /b 0
 
 :KillAuto
 echo  [a] Menutup proses + service Autodesk...
-for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe AcWebBrowser.exe AcCefSubprocess.exe AdAppMgrSvc.exe) do (
+for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe AcWebBrowser.exe AcCefSubprocess.exe AdAppMgrSvc.exe AdSync.exe) do (
     taskkill /f /im %%P >nul 2>&1
 )
 for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service" "AdskGenuineService") do (
