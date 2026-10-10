@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=22"
+set "VER=23"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-toolkit.bat"
 call :CheckUpdate
@@ -98,6 +98,7 @@ call :BlockProg "C:\Program Files (x86)\Autodesk\AutoCAD 2018\acad.exe" "Blokir 
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\AdSSO\AdSSO.exe" "Blokir AutoCAD2018 - AdSSO"
 call :BlockProg "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\AdskLicensingService\AdskLicensingService.exe" "Blokir AutoCAD2018 - LicensingService"
 call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe" "Blokir AutoCAD2018 - DesktopApp"
+call :BlockProg "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AdAppMgrSvc.exe" "Blokir AutoCAD2018 - AdAppMgrSvc"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\AcWebBrowser.exe" "Blokir AutoCAD2018 - AcWebBrowser"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\AcCefSubprocess.exe" "Blokir AutoCAD2018 - AcCefSubprocess"
 call :BlockProg "C:\Program Files\Autodesk\AutoCAD 2018\senddmp.exe" "Blokir AutoCAD2018 - senddmp"
@@ -129,6 +130,7 @@ call :VRule "Blokir AutoCAD2018 - acad.exe x86" "C:\Program Files (x86)\Autodesk
 call :VRule "Blokir AutoCAD2018 - AdSSO" "C:\Program Files\Autodesk\AutoCAD 2018\AdSSO\AdSSO.exe"
 call :VRule "Blokir AutoCAD2018 - LicensingService" "C:\Program Files (x86)\Common Files\Autodesk Shared\AdskLicensing\Current\AdskLicensingService\AdskLicensingService.exe"
 call :VRule "Blokir AutoCAD2018 - DesktopApp" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AutodeskDesktopApp.exe"
+call :VRule "Blokir AutoCAD2018 - AdAppMgrSvc" "C:\Program Files (x86)\Autodesk\Autodesk Desktop App\AdAppMgrSvc.exe"
 call :VRule "Blokir AutoCAD2018 - AcWebBrowser" "C:\Program Files\Autodesk\AutoCAD 2018\AcWebBrowser.exe"
 call :VRule "Blokir AutoCAD2018 - AcCefSubprocess" "C:\Program Files\Autodesk\AutoCAD 2018\AcCefSubprocess.exe"
 call :VRule "Blokir AutoCAD2018 - senddmp" "C:\Program Files\Autodesk\AutoCAD 2018\senddmp.exe"
@@ -544,7 +546,7 @@ exit /b 0
 
 :KillAuto
 echo  [a] Menutup proses + service Autodesk...
-for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe AcWebBrowser.exe AcCefSubprocess.exe) do (
+for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe AcWebBrowser.exe AcCefSubprocess.exe AdAppMgrSvc.exe) do (
     taskkill /f /im %%P >nul 2>&1
 )
 for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service" "AdskGenuineService") do (
