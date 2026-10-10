@@ -7,10 +7,13 @@ rem ============================================================
 
 net session >nul 2>&1
 if %errorLevel%==0 (
-    echo  !! Jangan dijalankan sebagai Administrator.
-    echo  !! Tutup jendela ini, lalu double-click file ini biasa saja.
-    pause
-    exit /b 1
+    echo  Berjalan sebagai admin - membuka ulang sebagai user biasa...
+    runas /trustlevel:0x20000 "cmd /c \"%~f0\""
+    if errorlevel 1 (
+        echo  !! Gagal. Tutup ini, lalu double-click file ini biasa saja.
+        pause
+    )
+    exit /b 0
 )
 
 set "DST=%LOCALAPPDATA%\GTG"
