@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=8"
+set "VER=9"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -52,9 +52,11 @@ echo   [8] Scan semua EXE bawaan paket
 echo       - daftar semua .exe + status blokir firewall-nya.
 echo   [9] Nonaktifkan blokir AutoCAD 2025
 echo       - hapus rule firewall + hosts. Konfirmasi YA.
+echo   [10] FULL RESET sekaligus (kill+bersih+blokir)
+echo       - 1x jalan: bersih flag Genuine Service + blokir total.
 echo   [0] Keluar
 echo.
-set /p PILIH="  Pilih [0-9]: "
+set /p PILIH="  Pilih [0-10]: "
 if "%PILIH%"=="1" ( call :DoBlock & goto MENU )
 if "%PILIH%"=="2" ( call :DoVerify & goto MENU )
 if "%PILIH%"=="3" ( call :DoCleanLicense & goto MENU )
@@ -64,6 +66,7 @@ if "%PILIH%"=="6" goto DOMONITOR
 if "%PILIH%"=="7" ( call :DoHostsOnly & goto MENU )
 if "%PILIH%"=="8" ( call :DoScan & goto MENU )
 if "%PILIH%"=="9" ( call :DoUnblock & goto MENU )
+if "%PILIH%"=="10" ( call :DoFullReset & goto MENU )
 if "%PILIH%"=="0" exit /b 0
 echo  Pilihan tidak valid.
 pause
@@ -361,6 +364,28 @@ set "PB=%~2             "
 echo   %PA:~0,24% %PB:~0,12% %~3
 exit /b 0
 
+:: ================== [10] FULL RESET ==================
+:DoFullReset
+echo.
+echo  --- [10] FULL RESET SEKALIGUS ---
+echo  kill koneksi + bersih flag Genuine Service + blokir total.
+echo  Setelah ini: restart PC, baru aktivasi ulang.
+echo.
+set "FRURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad/autocad-full-reset.bat"
+set "FRBAT=%TEMP%\autocad-full-reset.bat"
+echo  Mengunduh script full-reset...
+powershell -NoProfile -Command "try { Invoke-WebRequest -Uri '%FRURL%' -OutFile '%FRBAT%' -UseBasicParsing -TimeoutSec 60; 'FRDOK' } catch { 'FRDFAIL' }" > "%TEMP%\frd.txt" 2>nul
+findstr /i "FRDOK" "%TEMP%\frd.txt" >nul 2>&1
+del "%TEMP%\frd.txt" 2>nul
+if errorlevel 1 (
+    echo  GAGAL mengunduh. Cek koneksi internet lalu coba lagi.
+    pause
+    exit /b 1
+)
+echo  Menjalankan full-reset...
+call "%FRBAT%"
+del "%FRBAT%" 2>nul
+exit /b 0
 :DoUnblock
 echo.
 echo  --- [9] NONAKTIFKAN BLOKIR AUTOCAD 2025 ---
