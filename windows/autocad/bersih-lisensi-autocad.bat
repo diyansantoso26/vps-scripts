@@ -84,10 +84,10 @@ exit /b 0
 :: ================= Subrutin =================
 :KillAutodesk
 echo  [a] Menutup proses + service Autodesk...
-for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe) do (
+for %%P in (acad.exe AdSSO.exe AutodeskDesktopApp.exe AdskLicensingService.exe AdskLicensingAgent.exe lmgrd.exe GenuineService.exe) do (
     taskkill /f /im %%P >nul 2>&1
 )
-for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service") do (
+for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licensing Service" "AdskGenuineService") do (
     sc stop %%~S >nul 2>&1
     sc config %%~S start= disabled >nul 2>&1
 )
