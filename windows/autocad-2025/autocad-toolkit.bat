@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=9"
+set "VER=10"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat"
 call :CheckUpdate
@@ -119,6 +119,8 @@ echo  [c] Hosts file...
 call :WriteHosts
 echo.
 echo  SELESAI. Disarankan lanjut opsi [2] Verifikasi.
+schtasks /change /tn "AutoCAD Watchdog GTG" /enable >nul 2>&1
+if not errorlevel 1 echo  + Watchdog monitoring: AKTIF.
 pause
 exit /b 0
 
@@ -394,8 +396,9 @@ if errorlevel 1 (
     pause
     exit /b 0
 )
-echo  [a] Hapus rule firewall...
-powershell -NoProfile -Command "Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule" >nul 2>&1
+schtasks /change /tn "AutoCAD Watchdog GTG" /disable >nul 2>&1
+if not errorlevel 1 echo  ! Watchdog monitoring: NONAKTIF sementara.
+echo  [a] Hapus rule firewall...powershell -NoProfile -Command "Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule" >nul 2>&1
 set "RN=?"
 for /f %%N in ('powershell -NoProfile -Command "(Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Measure-Object).Count" 2^>nul') do set "RN=%%N"
 echo      + sisa rule blokir: %RN%
