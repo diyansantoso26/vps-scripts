@@ -20,7 +20,7 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-set "VER=12"
+set "VER=13"
 set "VERURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/VERSION?cb=%RANDOM%"
 set "BATURL=https://raw.githubusercontent.com/diyansantoso26/vps-scripts/main/windows/autocad-2025/autocad-toolkit.bat?cb=%RANDOM%"
 call :CheckUpdate
@@ -124,10 +124,15 @@ call :DisSvc "AdskGenuineService"
 echo  [c] Hosts file...
 call :WriteHosts
 echo.
-echo  SELESAI. Disarankan lanjut opsi [2] Verifikasi.
 schtasks /change /tn "AutoCAD Watchdog GTG" /enable >nul 2>&1
-if not errorlevel 1 echo  + Watchdog monitoring: AKTIF.
-pause
+if not errorlevel 1 ( set WDMSG=Watchdog: AKTIF. ) else ( set WDMSG=)
+for /f %%N in ('powershell -NoProfile -Command "(Get-NetFirewallRule -DisplayName 'Blokir AutoCAD*' -ErrorAction SilentlyContinue | Measure-Object).Count" 2^>nul') do set RCNT=%%N
+if not defined RCNT set RCNT=0
+if %RCNT% GEQ 8 (
+    call :ActionResult "Blokir internet total" "BERHASIL" "%RCNT% rule aktif. %WDMSG% Lanjut [2] Verifikasi."
+) else (
+    call :ActionResult "Blokir internet total" "GAGAL" "Hanya %RCNT% rule terbentuk."
+)
 exit /b 0
 
 :: ================== [2] VERIFIKASI ==================
@@ -192,9 +197,12 @@ if errorlevel 1 (
 call :KillAuto
 call :WipeLicense
 echo.
-echo  SELESAI. Restart PC, buka AutoCAD, aktivasi ulang dari awal.
-echo  Pastikan opsi [1] Blokir sudah dijalankan sebelumnya.
-pause
+dir /b "C:\ProgramData\FLEXnet\adskflex_*" >nul 2>&1
+if errorlevel 1 (
+    call :ActionResult "Bersihkan data lisensi" "BERHASIL" "Data lisensi bersih. Restart PC, aktivasi ulang. Pastikan [1] sudah jalan."
+) else (
+    call :ActionResult "Bersihkan data lisensi" "GAGAL" "Masih ada file adskflex_* tersisa."
+)
 exit /b 0
 
 :: ================== [4] BERSIH TOTAL ==================
@@ -238,9 +246,13 @@ for %%R in (
     )
 )
 echo.
-echo  SELESAI. Restart PC lalu install ulang AutoCAD 2025.
-echo  SEBELUM aktivasi: jalankan opsi [1] Blokir.
-pause
+set WOK=1
+for %%D in ("C:\Program Files\Autodesk" "C:\Program Files (x86)\Autodesk" "C:\Program Files (x86)\Common Files\Autodesk Shared" "C:\ProgramData\Autodesk" "%APPDATA%\Autodesk" "%LOCALAPPDATA%\Autodesk") do if exist %%D set WOK=0
+if "%WOK%"=="1" (
+    call :ActionResult "Bersih total" "BERHASIL" "Semua folder Autodesk terhapus. Restart, install ulang, lalu [1]."
+) else (
+    call :ActionResult "Bersih total" "GAGAL" "Masih ada folder Autodesk tersisa."
+)
 exit /b 0
 
 :: ================== [5] WHITELIST DEFENDER ==================
@@ -272,8 +284,12 @@ if defined EXTRA (
 echo.
 echo  Daftar exclusion path saat ini:
 powershell -NoProfile -Command "Get-MpPreference | Select-Object -ExpandProperty ExclusionPath"
-echo  SELESAI.
-pause
+powershell -NoProfile -Command "exit (-not ((Get-MpPreference).ExclusionPath -like '*Autodesk*'))" >nul 2>&1
+if errorlevel 1 (
+    call :ActionResult "Whitelist Defender" "GAGAL" "Path Autodesk tidak ada di exclusion."
+) else (
+    call :ActionResult "Whitelist Defender" "BERHASIL" "Path Autodesk dikecualikan dari scan."
+)
 exit /b 0
 
 :: ================== [6] MONITOR ==================
@@ -458,6 +474,25 @@ if exist "C:\ProgramData\Autodesk\Autodesk Genuine Service" (
 echo.
 pause
 exit /b 0
+:: ================== HASIL AKSI ==================
+:ActionResult
+rem %1=nama aksi  %2=BERHASIL/GAGAL/SELESAI  %3=detail
+echo.
+echo  +------------------------------------------+
+if "%~2"=="BERHASIL" (
+    echo   %~1 : BERHASIL
+) else (
+    if "%~2"=="GAGAL" (
+        echo   %~1 : GAGAL !!
+    ) else (
+        echo   %~1 : %~2
+    )
+)
+echo  +------------------------------------------+
+if not "%~3"=="" echo  %~3
+echo  Tekan tombol untuk kembali ke menu...
+pause >nul
+exit /b 0
 :DoUnblock
 echo.
 echo  --- [9] NONAKTIFKAN BLOKIR AUTOCAD 2025 ---
@@ -491,8 +526,13 @@ for %%S in ("AdskLicensingService" "Autodesk Desktop App Service" "FlexNet Licen
     if not errorlevel 1 sc config %%~S start= demand >nul 2>&1
 )
 echo.
-echo  SELESAI. Blokir AutoCAD 2025 dinonaktifkan.
-pause
+for /f %%N in ('powershell -NoProfile -Command "(Get-NetFirewallRule -DisplayName 'Blokir AutoCAD2025*' -ErrorAction SilentlyContinue | Measure-Object).Count" 2^>nul') do set RCNT=%%N
+if not defined RCNT set RCNT=0
+if "%RCNT%"=="0" (
+    call :ActionResult "Nonaktifkan blokir" "BERHASIL" "Semua rule blokir terhapus."
+) else (
+    call :ActionResult "Nonaktifkan blokir" "GAGAL" "Masih ada %RCNT% rule tersisa."
+)
 exit /b 0
 
 :: ================== [7] HOSTS SAJA ==================
@@ -500,7 +540,16 @@ exit /b 0
 echo.
 echo  --- [7] PERBAIKI HOSTS FILE SAJA ---
 call :WriteHostsVerbose
-pause
+set HOK=1
+for %%H in (genuine-software.autodesk.com genuine-software1.autodesk.com cur.autodesk.com accounts.autodesk.com api.autodesk.com metapi.autodesk.com edge.api.autodesk.com ipservice.api.autodesk.com cm-sso-prod.arkoselabs.com) do (
+    findstr /i /m /c:"%%H" "%SystemRoot%\System32\drivers\etc\hosts" >nul 2>&1
+    if errorlevel 1 set HOK=0
+)
+if "%HOK%"=="1" (
+    call :ActionResult "Perbaiki hosts" "BERHASIL" "9 domain Autodesk terblokir."
+) else (
+    call :ActionResult "Perbaiki hosts" "GAGAL" "Ada domain yang belum tertulis."
+)
 exit /b 0
 
 :: ================== SUBRUTIN BANTU ==================
@@ -626,7 +675,7 @@ if /i "%BLOKSEMUA%"=="Y" (
     echo  Selesai diblokir.
 )
 del "%SCANFILE%" 2>nul
-pause
+call :ActionResult "Scan EXE" "SELESAI" "Lihat daftar status blokir di atas."
 exit /b 0
 
 :ScanExe
